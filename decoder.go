@@ -92,7 +92,21 @@ func (d *decoder) decode(name string, node ast.Node, result reflect.Value) error
 	case reflect.Float64:
 		return d.decodeFloat(name, node, result)
 	case reflect.Int:
-		return d.decodeInt(name, node, result)
+		return d.decodeInt(name, node, result, 0)
+	case reflect.Int8:
+		return d.decodeInt(name, node, result, 8)
+	case reflect.Int16:
+		return d.decodeInt(name, node, result, 16)
+	case reflect.Int32:
+		return d.decodeInt(name, node, result, 32)
+	case reflect.Uint:
+		return d.decodeUint(name, node, result, 0)
+	case reflect.Uint8:
+		return d.decodeUint(name, node, result, 8)
+	case reflect.Uint16:
+		return d.decodeUint(name, node, result, 16)
+	case reflect.Uint32:
+		return d.decodeUint(name, node, result, 32)
 	case reflect.Interface:
 		// When we see an interface, we make our own thing
 		return d.decodeInterface(name, node, result)
@@ -154,25 +168,94 @@ func (d *decoder) decodeFloat(name string, node ast.Node, result reflect.Value) 
 	}
 }
 
-func (d *decoder) decodeInt(name string, node ast.Node, result reflect.Value) error {
+func (d *decoder) decodeInt(name string, node ast.Node, result reflect.Value, size int) error {
 	switch n := node.(type) {
 	case *ast.LiteralType:
 		switch n.Token.Type {
 		case token.NUMBER:
-			v, err := strconv.ParseInt(n.Token.Text, 0, 0)
+			v, err := strconv.ParseInt(n.Token.Text, 0, size)
 			if err != nil {
 				return err
 			}
 
-			result.Set(reflect.ValueOf(int(v)))
+			switch size {
+			case 8:
+				result.Set(reflect.ValueOf(int8(v)))
+			case 16:
+				result.Set(reflect.ValueOf(int16(v)))
+			case 32:
+				result.Set(reflect.ValueOf(int32(v)))
+			case 64:
+			default:
+				result.Set(reflect.ValueOf(int(v)))
+			}
 			return nil
 		case token.STRING:
-			v, err := strconv.ParseInt(n.Token.Value().(string), 0, 0)
+			v, err := strconv.ParseInt(n.Token.Value().(string), 0, size)
 			if err != nil {
 				return err
 			}
 
-			result.Set(reflect.ValueOf(int(v)))
+			switch size {
+			case 8:
+				result.Set(reflect.ValueOf(int8(v)))
+			case 16:
+				result.Set(reflect.ValueOf(int16(v)))
+			case 32:
+				result.Set(reflect.ValueOf(int32(v)))
+			case 64:
+			default:
+				result.Set(reflect.ValueOf(int(v)))
+			}
+			return nil
+		}
+	}
+
+	return &parser.PosError{
+		Pos: node.Pos(),
+		Err: fmt.Errorf("%s: unknown type %T", name, node),
+	}
+}
+
+func (d *decoder) decodeUint(name string, node ast.Node, result reflect.Value, size int) error {
+	switch n := node.(type) {
+	case *ast.LiteralType:
+		switch n.Token.Type {
+		case token.NUMBER:
+			v, err := strconv.ParseUint(n.Token.Text, 0, size)
+			if err != nil {
+				return err
+			}
+
+			switch size {
+			case 8:
+				result.Set(reflect.ValueOf(uint8(v)))
+			case 16:
+				result.Set(reflect.ValueOf(uint16(v)))
+			case 32:
+				result.Set(reflect.ValueOf(uint32(v)))
+			case 64:
+			default:
+				result.Set(reflect.ValueOf(uint(v)))
+			}
+			return nil
+		case token.STRING:
+			v, err := strconv.ParseUint(n.Token.Value().(string), 0, size)
+			if err != nil {
+				return err
+			}
+
+			switch size {
+			case 8:
+				result.Set(reflect.ValueOf(uint8(v)))
+			case 16:
+				result.Set(reflect.ValueOf(uint16(v)))
+			case 32:
+				result.Set(reflect.ValueOf(uint32(v)))
+			case 64:
+			default:
+				result.Set(reflect.ValueOf(uint(v)))
+			}
 			return nil
 		}
 	}

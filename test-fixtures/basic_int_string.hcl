@@ -1,1 +1,8 @@
 count = "3"
+count8 = "3"
+count16 = "250"
+count32 = "25000"
+countu = "3"
+countu8 = "3"
+countu16 = "250"
+countu32 = "25000"

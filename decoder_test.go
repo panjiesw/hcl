@@ -609,7 +609,14 @@ func TestDecode_interfaceNonPointer(t *testing.T) {
 
 func TestDecode_intString(t *testing.T) {
 	var value struct {
-		Count int
+		Count    int
+		Count8   int8
+		Count16  int16
+		Count32  int32
+		Countu   uint
+		Countu8  uint8
+		Countu16 uint16
+		Countu32 uint32
 	}
 
 	err := Decode(&value, testReadFile(t, "basic_int_string.hcl"))
@@ -619,6 +626,27 @@ func TestDecode_intString(t *testing.T) {
 
 	if value.Count != 3 {
 		t.Fatalf("bad: %#v", value.Count)
+	}
+	if value.Count8 != 3 {
+		t.Fatalf("bad: %#v", value.Count8)
+	}
+	if value.Count16 != 250 {
+		t.Fatalf("bad: %#v", value.Count16)
+	}
+	if value.Count32 != 25000 {
+		t.Fatalf("bad: %#v", value.Count32)
+	}
+	if value.Countu != 3 {
+		t.Fatalf("bad: %#v", value.Countu)
+	}
+	if value.Countu8 != 3 {
+		t.Fatalf("bad: %#v", value.Countu8)
+	}
+	if value.Countu16 != 250 {
+		t.Fatalf("bad: %#v", value.Countu16)
+	}
+	if value.Countu32 != 25000 {
+		t.Fatalf("bad: %#v", value.Countu32)
 	}
 }
 
